@@ -1,6 +1,8 @@
 (require lenin.language)
 
 (lenin "vcs"
+;  (on :docker (print event))
+
   (job :every 5 seconds
        :returns 0
        :image "debian:7.4"

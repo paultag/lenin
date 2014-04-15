@@ -7,14 +7,13 @@
 
 
 (defmacro job [&rest forms]
-  (define [[data (group-map keyword? forms)]]
-    ; {:volumes [['/vcs' '/srv/marx.pault.ag/vcs']]
-    ;  :run ['vcs-do-sync']
-    ;  :image ['paultag/vcs']
-    ;  :workdir ['/vcs/']}
+  (define [[data (group-map keyword? forms)]
+           [exit-code (get (:returns data) 0)]
+           [binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]]
 
     `(run-every ~@(:every data)
       (disown
+        ; fork job to the async queue
         (define [[containers docker.containers]
                  [container (go (.create containers {
                    "Cmd" [~@(:run data)]
@@ -27,15 +26,18 @@
                    "OpenStdin" false
                    "StdinOnce" false}))]
                  [instance (go (.start container {
-                   ; "Binds":["/tmp:/tmp"],
-                   ; "LxcConf":{"lxc.utsname":"docker"},
-                   ; "PortBindings":{ "22/tcp": [{ "HostPort": "11022" }] },
-                   ; "PublishAllPorts":false,
-                   ; "Privileged":false
+                   "Binds" [~@binds]
                  }))]]
+          (go-setv info (.show container))
+          (print "Started" (get info "Name"))
           (go (.wait container))
-          (go (.delete container))
-)))))
+          (go-setv info (.show container))
+          ; handle results.
+          (if (= (int (-> info (get "State") (get "ExitCode")))
+                 (int ~exit-code))
+            (print "OK Run" (get info "Name"))
+            (print "Failed run" (get info "Name")))
+          (go (.delete container)))))))
 
 
 (defmacro lenin [&rest body]
