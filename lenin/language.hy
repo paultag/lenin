@@ -33,7 +33,7 @@
                    ; "PublishAllPorts":false,
                    ; "Privileged":false
                  }))]]
-          (print instance))))))
+          (go (.wait container)))))))
 
 
 (defmacro lenin [&rest body]

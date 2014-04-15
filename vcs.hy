@@ -6,4 +6,4 @@
        :image "debian:7.4"
        :volumes ["/vcs" "/srv/marx.pault.ag/vcs"]
        :workdir "/vcs/"
-       :run "vcs-do-sync"))
+       :run "sleep" "10"))
