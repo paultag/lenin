@@ -7,16 +7,33 @@
 
 
 (defmacro job [&rest forms]
-  ; (job :every 15 minutes
-  ;      :returns 0
-  ;      :image "paultag/vcs"
-  ;      :volumes [["/vcs" "/srv/marx.pault.ag/vcs"]]
-  ;      :workdir "/vcs/"
-  ;      :run ["vcs-do-sync"]))
-
   (define [[data (group-map keyword? forms)]]
+    ; {:volumes [['/vcs' '/srv/marx.pault.ag/vcs']]
+    ;  :run ['vcs-do-sync']
+    ;  :image ['paultag/vcs']
+    ;  :workdir ['/vcs/']}
+
     `(run-every ~@(:every data)
-      (disown (print (go (.list docker.containers)))))))
+      (disown
+        (define [[containers docker.containers]
+                 [container (go (.create containers {
+                   "Cmd" [~@(:run data)]
+                   "Image" ~@(:image data)
+                   "AttachStdin" false
+                   "AttachStdout" true
+                   "AttachStderr" true
+                   "WorkingDir" ~@(:workdir data)
+                   "Tty" false
+                   "OpenStdin" false
+                   "StdinOnce" false}))]
+                 [instance (go (.start container {
+                   ; "Binds":["/tmp:/tmp"],
+                   ; "LxcConf":{"lxc.utsname":"docker"},
+                   ; "PortBindings":{ "22/tcp": [{ "HostPort": "11022" }] },
+                   ; "PublishAllPorts":false,
+                   ; "Privileged":false
+                 }))]]
+          (print instance))))))
 
 
 (defmacro lenin [&rest body]
