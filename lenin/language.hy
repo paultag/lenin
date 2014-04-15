@@ -33,7 +33,9 @@
                    ; "PublishAllPorts":false,
                    ; "Privileged":false
                  }))]]
-          (go (.wait container)))))))
+          (go (.wait container))
+          (go (.delete container))
+)))))
 
 
 (defmacro lenin [&rest body]
