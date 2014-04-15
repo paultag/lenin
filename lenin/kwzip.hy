@@ -1,0 +1,27 @@
+(import [collections [defaultdict]]
+        [functools [reduce]])
+
+
+(defn keyword? [k] (and (instance? (type :foo) k)
+                   (.startswith k (get :foo 0))))
+
+
+(defn key-value-stream [key? stream]
+  (let [[key nil]]
+    (for [x stream]
+      (if (key? x)
+        (setv key x)
+        (yield [key x])))))
+
+
+(defn group-map [key? stream]
+  (reduce
+    (fn [accum v]
+      (let [[(, key value) v]]
+        (.append (get accum key) value))
+      accum)
+    (key-value-stream key? stream)
+    (defaultdict list)))
+
+
+; (print (group-map keyword? [1 2 3 :foo 2 3 4 :bar 2 3 :baz 2 :foo :mani]))
