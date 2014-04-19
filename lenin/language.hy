@@ -12,7 +12,7 @@
     [true (raise (TypeError "Too many args passed in."))]))
 
 
-(defmacro daemon-run [&rest forms]
+(defmacro/g! daemon-run [&rest forms]
   (define [[data (group-map keyword? forms)]
            [name (one nil (:name data))]
            [binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
@@ -28,21 +28,36 @@
                                "AttachStderr" true
                                "Tty" false
                                "OpenStdin" false
-                               "StdinOnce" false}))]]
+                               "StdinOnce" false}))]
+              [~g!leader  (+ :lenin-daemon "-" ~name "-")]
+              [~g!start   (+ ~g!leader "start")]
+              [~g!started (+ ~g!leader "started")]
+              [~g!failed  (+ ~g!leader "failed")]]
 
-      (print "Starting container")
       (go (.start container {"Binds" [~@binds]}))
-      (print "Started container")
+      (emit ~g!started container)
+      (emit :lenin-daemon-started {
+        :name ~name
+        :container container
+      })
       (go (.wait container))
-      (print "OMGWTF")
-)))
+      (emit ~g!failed container)
+      (emit :lenin-daemon-failure {
+        :name ~name
+        :container container
+      }))))
 
 
 (defmacro daemon [&rest forms]
   `(disown
-    (daemon-run ~@forms)
+    (while true (daemon-run ~@forms))
 ))
 
 
 (defmacro lenin [&rest body]
-  `(marx ~@body))
+  `(marx
+
+    (on :lenin-daemon-failure
+      (print (:name event) "failed. ouch."))
+
+    ~@body))
