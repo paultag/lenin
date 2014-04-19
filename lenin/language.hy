@@ -1,43 +1,47 @@
 (require marx.language)
-(import [lenin.kwzip [group-map keyword?]])
-
+(import asyncio [lenin.kwzip [group-map keyword?]])
 
 (defmacro disown [&rest forms]
   `(.async asyncio ((fn/coroutine [] ~@forms))))
 
 
-(defmacro job [&rest forms]
-  (define [[data (group-map keyword? forms)]
-           [exit-code (get (:returns data) 0)]
-           [binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]]
+(defn one [default args]
+  (cond
+    [(= (len args) 0) default]
+    [(= (len args) 1) (get args 0)]
+    [true (raise (TypeError "Too many args passed in."))]))
 
-    `(run-every ~@(:every data)
-      (disown
-        ; fork job to the async queue
-        (define [[containers docker.containers]
-                 [container (go (.create containers {
-                   "Cmd" [~@(:run data)]
-                   "Image" ~@(:image data)
-                   "AttachStdin" false
-                   "AttachStdout" true
-                   "AttachStderr" true
-                   "WorkingDir" ~@(:workdir data)
-                   "Tty" false
-                   "OpenStdin" false
-                   "StdinOnce" false}))]
-                 [instance (go (.start container {
-                   "Binds" [~@binds]
-                 }))]]
-          (go-setv info (.show container))
-          (print "Started" (get info "Name"))
-          (go (.wait container))
-          (go-setv info (.show container))
-          ; handle results.
-          (if (= (int (-> info (get "State") (get "ExitCode")))
-                 (int ~exit-code))
-            (print "OK Run" (get info "Name"))
-            (print "Failed run" (get info "Name")))
-          (go (.delete container)))))))
+
+(defmacro daemon-run [&rest forms]
+  (define [[data (group-map keyword? forms)]
+           [name (one nil (:name data))]
+           [binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
+           [image (one `"debian:unstable" (:image data))]]
+
+    `(define [[container (go (.create-or-replace
+                              docker.containers
+                              ~name
+                              {"Cmd" [~@(:run data)]
+                               "Image" ~image
+                               "AttachStdin" false
+                               "AttachStdout" true
+                               "AttachStderr" true
+                               "Tty" false
+                               "OpenStdin" false
+                               "StdinOnce" false}))]]
+
+      (print "Starting container")
+      (go (.start container {"Binds" [~@binds]}))
+      (print "Started container")
+      (go (.wait container))
+      (print "OMGWTF")
+)))
+
+
+(defmacro daemon [&rest forms]
+  `(disown
+    (daemon-run ~@forms)
+))
 
 
 (defmacro lenin [&rest body]
