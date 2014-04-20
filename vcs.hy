@@ -7,5 +7,5 @@
        :run "sleep" "1")
 
   (daemon :name "test"
-          :image "debian:7.4"
+          :image "debian:unstable"
           :run "sleep" "8"))

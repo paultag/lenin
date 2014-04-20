@@ -1,8 +1,13 @@
 (require marx.language)
 (import asyncio [lenin.kwzip [group-map keyword? one]])
 
+
 (defmacro disown [&rest forms]
   `(.async asyncio ((fn/coroutine [] ~@forms))))
+
+
+(defmacro lenin-debug [&rest forms]
+  `(print ~@forms))
 
 
 (defmacro broadcast [class name event container]
@@ -25,8 +30,12 @@
 
 (defn lenin-run [data]
   "Central run code"
-  (define [[binds (list-comp (.join `":" x) [x (:volumes data)])]]
-    `(go (.start container {"Binds" [~@binds]}))))
+  (define [[binds (list-comp (.join `":" x) [x (:volumes data)])]
+           [iname (gensym)]]
+    `(do
+      (go-setv ~iname (.show container))
+      (if (is (-> ~iname (get "State") (get "Running")) false)
+        (go (.start container {"Binds" [~@binds]}))))))
 
 
 (defn lenin-create [data]
@@ -81,9 +90,9 @@
         (broadcast "daemon" ~name "died" container)))))
 
 
-(defmacro lenin [&rest body]
+(defmacro lenin [set-name &rest body]
   `(marx
-    (on :lenin (print (slice (get event "id") 0 8) ":"
+    (on :lenin (lenin-debug (slice (get event "id") 0 8) ":"
                       (get event "class")
                       (get event "name") (get event "event")))
     ~@body))
