@@ -49,6 +49,8 @@
   (define [[data (group-map keyword? forms)]
            [creation-code (lenin-create data)]
            [run-code (lenin-run data)]]
+    ; XXX: Remove `name' if it exists.
+
     `(disown
       ~creation-code
       (broadcast "job" nil "setup" container)
