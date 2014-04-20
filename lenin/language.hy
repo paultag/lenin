@@ -53,7 +53,13 @@
       ~creation-code
       (broadcast "job" ~name "setup" container)
       ~run-code
-      (broadcast "job" ~name "start" container))))
+      (broadcast "job" ~name "start" container)
+      (go (.wait container))
+      (broadcast "job" ~name "finished" container)
+      (go-setv info (.show container))
+      (if (= (int (-> info (get "State") (get "ExitCode"))) 0)
+        (broadcast "job" ~name "succeeded" container)
+        (broadcast "job" ~name "failed" container)))))
 
 
 (defmacro lenin [&rest body]
