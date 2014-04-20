@@ -6,6 +6,13 @@
                    (.startswith k (get :foo 0))))
 
 
+(defn one [default args]
+  (cond
+    [(= (len args) 0) default]
+    [(= (len args) 1) (get args 0)]
+    [true (raise (TypeError "Too many args passed in."))]))
+
+
 (defn key-value-stream [key? stream]
   (let [[key nil]]
     (for [x stream]
