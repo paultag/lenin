@@ -8,9 +8,10 @@
 (defmacro broadcast [class name event container]
   (define [[ename (gensym)]]
     `(define [[~ename {"class" ~class
-                      "name" ~name
-                      "event" ~event
-                      "container" ~container}]]
+                       "name" ~name
+                       "id" container._id
+                       "event" ~event
+                       "container" ~container}]]
       (emit :lenin ~ename)
       (emit (+ :lenin "-" ~class) ~ename)
       (emit (+ :lenin "-" ~class "-" ~event) ~ename)
@@ -46,23 +47,41 @@
 
 (defmacro job [&rest forms]
   (define [[data (group-map keyword? forms)]
-           [name (one `nil (:name data))]
            [creation-code (lenin-create data)]
            [run-code (lenin-run data)]]
     `(disown
       ~creation-code
-      (broadcast "job" ~name "setup" container)
+      (broadcast "job" nil "setup" container)
       ~run-code
-      (broadcast "job" ~name "start" container)
+      (broadcast "job" nil "start" container)
       (go (.wait container))
-      (broadcast "job" ~name "finished" container)
+      (broadcast "job" nil "finished" container)
       (go-setv info (.show container))
       (if (= (int (-> info (get "State") (get "ExitCode"))) 0)
-        (broadcast "job" ~name "succeeded" container)
-        (broadcast "job" ~name "failed" container)))))
+        (broadcast "job" nil "succeeded" container)
+        (broadcast "job" nil "failed" container))
+      (go (.delete container))
+      (broadcast "job" nil "deleted" container))))
+
+
+(defmacro daemon [&rest forms]
+  (define [[data (group-map keyword? forms)]
+           [name (one `nil (:name data))]
+           [creation-code (lenin-create data)]
+           [run-code (lenin-run data)]]
+    `(disown
+      (while true
+        ~creation-code
+        (broadcast "daemon" ~name "setup" container)
+        ~run-code
+        (broadcast "daemon" ~name "start" container)
+        (go (.wait container))
+        (broadcast "daemon" ~name "died" container)))))
 
 
 (defmacro lenin [&rest body]
   `(marx
-    (on :lenin (print (get event "event")))
+    (on :lenin (print (slice (get event "id") 0 8) ":"
+                      (get event "class")
+                      (get event "name") (get event "event")))
     ~@body))
