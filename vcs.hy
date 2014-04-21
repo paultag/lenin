@@ -1,7 +1,7 @@
 (require lenin.language)
 
 (lenin "vcs"
-  (job :every 2 seconds
+  (job :every 1 seconds
        :image "debian:unstable"
        :returns 0
        :run "sleep" "1")

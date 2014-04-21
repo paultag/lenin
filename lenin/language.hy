@@ -60,19 +60,20 @@
            [run-code (lenin-run data)]]
     ; XXX: Remove `name' if it exists.
 
-    `(disown
-      ~creation-code
-      (broadcast "job" nil "setup" container)
-      ~run-code
-      (broadcast "job" nil "start" container)
-      (go (.wait container))
-      (broadcast "job" nil "finished" container)
-      (go-setv info (.show container))
-      (if (= (int (-> info (get "State") (get "ExitCode"))) 0)
-        (broadcast "job" nil "succeeded" container)
-        (broadcast "job" nil "failed" container))
-      (go (.delete container))
-      (broadcast "job" nil "deleted" container))))
+    `(run-every ~@(:every data)
+      (disown
+        ~creation-code
+        (broadcast "job" nil "setup" container)
+        ~run-code
+        (broadcast "job" nil "start" container)
+        (go (.wait container))
+        (broadcast "job" nil "finished" container)
+        (go-setv info (.show container))
+        (if (= (int (-> info (get "State") (get "ExitCode"))) 0)
+          (broadcast "job" nil "succeeded" container)
+          (broadcast "job" nil "failed" container))
+        (go (.delete container))
+        (broadcast "job" nil "deleted" container)))))
 
 
 (defmacro daemon [&rest forms]
