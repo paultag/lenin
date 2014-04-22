@@ -30,12 +30,32 @@
 
 (defn lenin-run [data]
   "Central run code"
-  (define [[binds (list-comp (.join `":" x) [x (:volumes data)])]
-           [iname (gensym)]]
+  (defn parse-string [input]
+      ;; "172.17.42.1:53:53/udp"
+      (let [[(, host hport) (.rsplit input ":" 1)]
+            [(, ip cport) (.rsplit host ":" 1)]
+            [hport (HyString hport)]
+            [ip (HyString ip)]
+            [cport (HyString cport)]]
+
+        `{"PortBindings" {
+          ~hport [{
+            "HostIp" ~ip
+            "HostPort" ~cport
+          }]
+        }}))
+
+  (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
+           [iname (gensym)]
+           [config `{"Binds" [~@binds]}]]
+
+    (if (.get data :port-mapping)
+      (setv config (+ config (parse-string (one 'nil (:port-mapping data))))))
+
     `(do
       (go-setv ~iname (.show container))
       (if (is (-> ~iname (get "State") (get "Running")) false)
-        (go (.start container {"Binds" [~@binds]}))))))
+        (go (.start container ~config))))))
 
 
 (defn lenin-create [data]
