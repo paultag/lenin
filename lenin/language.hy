@@ -37,12 +37,7 @@
             [hport (HyString hport)]
             [ip (HyString ip)]
             [cport (HyString cport)]]
-
-        `{"PortBindings" {
-          ~hport [{
-            "HostIp" ~ip
-            "HostPort" ~cport
-          }]
+        `{"PortBindings" {~hport [{"HostIp" ~ip "HostPort" ~cport}]
         }}))
 
   (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
