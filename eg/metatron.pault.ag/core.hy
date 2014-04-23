@@ -2,9 +2,16 @@
 (import [sh [hostname]])
 
 
-(lenin ""
+(lenin "core"
   (let [[host (.strip (str (hostname "-f")))]
-        [deployment "dev"]]
+        [deployment "dev"]
+        [root (.join "/" "/srv" host dev)]]
+
+;    (daemon :name "lenin-webapps"
+;            :image "paultag/lenin"
+;            :volumes ["/var/run/docker.sock" "/docker.sock"]
+;                     [(+ root "lenin") "/lenin"]
+;            :run "hy" "/lenin/webapps.hy")
 
     (daemon :name "skydns"
             :image "crosbymichael/skydns"
@@ -19,11 +26,4 @@
                  "-environment" deployment
                  "-s" "/docker.sock"
                  "-domain" host
-                 "-name" "skydns")
-
-    (daemon :name "postgres"
-            :image "paultag/postgres"
-            :volumes ["/var/lib/postgresql/" "/srv/metatron.pault.ag/postgres"]
-            :run "/usr/lib/postgresql/9.3/bin/postgres"
-                 "-D" "/var/lib/postgresql/9.3/main"
-                 "-c" "config_file=/etc/postgresql/9.3/main/postgresql.conf")))
+                 "-name" "skydns")))
