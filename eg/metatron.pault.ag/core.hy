@@ -5,7 +5,10 @@
 (lenin "core"
   (let [[host (.strip (str (hostname "-f")))]
         [deployment "dev"]
-        [root (.join "/" "/srv" host dev)]]
+        [root (.join "/" "/srv" host deployment)]]
+        ; host       "leliel.pault.ag"
+        ; deployment "dev"
+        ; root       "/srv/leliel.pault.ag/dev/"
 
 ;    (daemon :name "lenin-webapps"
 ;            :image "paultag/lenin"
