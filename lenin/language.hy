@@ -55,7 +55,14 @@
 
 (defn lenin-create [data]
   "Central creation code"
+  (defn write-binds [binds]
+    (let [[ret `{}]]
+      (for [(, k v) binds]
+        (setv ret (+ ret `[~v `{}])))
+      ret))
+
   (define [[name (one `nil (:name data))]
+           [volumes (write-binds (:volumes data))]
            [image (one `"debian:stable" (:image data))]]
     `(do
       (go-setv container (.create-or-replace docker.containers
@@ -65,6 +72,7 @@
                                    "AttachStdout" true
                                    "AttachStderr" true
                                    "Tty" false
+                                   "Volumes" ~volumes
                                    "OpenStdin" false
                                    "StdinOnce" false})))))
 
