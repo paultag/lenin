@@ -4,17 +4,7 @@
 
 (lenin "core"
   (let [[host (.strip (str (hostname "-f")))]
-        [deployment "dev"]
-        [root (.join "/" ["/srv" host deployment])]]
-        ; host       "leliel.pault.ag"
-        ; deployment "dev"
-        ; root       "/srv/leliel.pault.ag/dev/"
-
-;    (daemon :name "lenin-webapps"
-;            :image "paultag/lenin"
-;            :volumes ["/var/run/docker.sock" "/docker.sock"]
-;                     [(+ root "lenin") "/lenin"]
-;            :run "hy" "/lenin/webapps.hy")
+        [deployment "dev"]]
 
     (daemon :name "skydns"
             :image "crosbymichael/skydns"
