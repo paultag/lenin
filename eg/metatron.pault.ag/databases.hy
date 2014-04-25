@@ -5,7 +5,7 @@
 
   (daemon :name "mongodb"
           :image "paultag/mongodb"
-          :run "mongod" "--config" "/etc/mongodb.conf")
+          :run "mongod" "--bind_ip" "0.0.0.0" "--config" "/etc/mongodb.conf")
 
   (daemon :name "postgres"
           :image "paultag/postgres"
