@@ -9,7 +9,8 @@
 
   (daemon :name "postgres"
           :image "paultag/postgres"
-          :volumes ["/srv/leliel.pault.ag/dev/postgres" "/var/lib/postgres"]
+          :volumes ["/srv/leliel.pault.ag/dev/postgres/9.3/main"
+                    "/var/lib/postgresql/9.3/main"]
           :run "/usr/lib/postgresql/9.3/bin/postgres"
                "-D" "/var/lib/postgresql/9.3/main"
                "-c" "config_file=/etc/postgresql/9.3/main/postgresql.conf"))
