@@ -26,9 +26,23 @@
           :run "/usr/local/bin/paultag-psqld")
 
   ;;
-  ;; Snitch Daemon
+  ;; Apt Cacher
   ;;
-  (daemon :name "snitchd"
+  (daemon :name "apt-cacher-ng"
+          :image "paultag/apt-cacher-ng"
+          :run "/usr/sbin/apt-cacher-ng")
+
+  ;;
+  ;; Snitch Daemon Debian
+  ;;
+  (daemon :name "snitchd-debian"
           :image "paultag/snitch"
           :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
           :run "hy" "/opt/hylang/snitch/debian.hy"))
+  ;;
+  ;; Snitch web worker
+  ;;
+  ; (daemon :name "snitch-web"
+  ;         :image "paultag/snitch"
+  ;         :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
+  ;         :run "hy" "/opt/hylang/snitch/debian.hy"))
