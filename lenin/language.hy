@@ -41,8 +41,10 @@
         }}))
 
   (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
+           [links (list-comp (HyString (.join ":" x)) [x (:links data)])]
            [iname (gensym)]
-           [config `{"Binds" [~@binds]}]]
+           [config `{"Binds" [~@binds]
+                     "Links" [~@links]}]]
 
     (if (.get data :port-mapping)
       (setv config (+ config (parse-string (one 'nil (:port-mapping data))))))
