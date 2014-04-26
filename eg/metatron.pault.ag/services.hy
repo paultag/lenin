@@ -30,15 +30,15 @@
   ;;
   (daemon :name "apt-cacher-ng"
           :image "paultag/apt-cacher-ng"
-          :run "/usr/sbin/apt-cacher-ng" "ForeGround=1"))
+          :run "/usr/sbin/apt-cacher-ng" "ForeGround=1")
 
   ;;
   ;; Snitch Daemon Debian
   ;;
-  ;(daemon :name "snitchd-debian"
-  ;        :image "paultag/snitch"
-  ;        :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
-  ;        :run "hy" "/opt/hylang/snitch/debian.hy"))
+  (daemon :name "snitchd-debian"
+          :image "paultag/snitch"
+          :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
+          :run "hy" "/opt/hylang/snitch/debian.hy"))
   ;;
   ;; Snitch web worker
   ;;
