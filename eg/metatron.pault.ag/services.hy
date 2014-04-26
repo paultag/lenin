@@ -30,7 +30,7 @@
   ;;
   (daemon :name "apt-cacher-ng"
           :image "paultag/apt-cacher-ng"
-          :run "/usr/sbin/apt-cacher-ng" "ForeGround=1")
+          :run "/usr/sbin/apt-cacher-ng" "ForeGround=1"))
 
   ;;
   ;; Snitch Daemon Debian
