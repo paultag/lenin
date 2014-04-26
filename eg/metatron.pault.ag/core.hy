@@ -24,6 +24,7 @@
     ;;
     (daemon :name "skydock"
             :image "crosbymichael/skydock"
+            :requires "skydns"
             :volumes ["/var/run/docker.sock" "/docker.sock"]
             :run "-ttl" "30"
                  "-environment" deployment

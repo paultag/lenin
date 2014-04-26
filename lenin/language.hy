@@ -55,6 +55,27 @@
         (go (.start container ~config))))))
 
 
+(defn lenin-depwait [data]
+  (define [[deps (:requires data)]]
+    `(go (apply asyncio.gather
+      (list-comp
+        ((fn/coroutine [name]
+          (define [[queue (.listen docker.events)]]
+          (print (% " => dep %s blocked" name))
+          (while true
+            (define [[e (go (.get queue))]
+                     [container (go (.show (get e "container")))]
+                     [cname (.lstrip (get container "Name") "/")]]
+              (if (and (= cname name)
+                       (= (.get e "status") "start"))
+                (do
+                  (go (.sleep asyncio 5))
+                  ; XXX: Run check after this to ensure it's up
+                  (print (% " => dep %s unblocked" name))
+                  (break))))))) x)
+        [x [~@deps]])))))
+
+
 (defn lenin-create [data]
   "Central creation code"
   (defn write-binds [binds]
@@ -106,12 +127,19 @@
 (defmacro daemon [&rest forms]
   (define [[data (group-map keyword? forms)]
            [name (one `nil (:name data))]
+           [depwait-code (lenin-depwait data)]
            [creation-code (lenin-create data)]
            [run-code (lenin-run data)]]
     `(disown
       (while true
         ~creation-code
         (broadcast "daemon" ~name "setup" container)
+
+        ;;; ok, we need something. let's block.
+        (broadcast "daemon" ~name "pending" container)
+        ~depwait-code
+        (broadcast "daemon" ~name "released" container)
+
         ~run-code
         (broadcast "daemon" ~name "start" container)
         (go (.wait container))
