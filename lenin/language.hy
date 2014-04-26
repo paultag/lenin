@@ -60,19 +60,31 @@
     `(go (apply asyncio.gather
       (list-comp
         ((fn/coroutine [name]
-          (define [[queue (.listen docker.events)]]
-          (print (% " => dep %s blocked" name))
-          (while true
-            (define [[e (go (.get queue))]
-                     [container (go (.show (get e "container")))]
-                     [cname (.lstrip (get container "Name") "/")]]
-              (if (and (= cname name)
-                       (= (.get e "status") "start"))
-                (do
-                  (go (.sleep asyncio 5))
-                  ; XXX: Run check after this to ensure it's up
-                  (print (% " => dep %s unblocked" name))
-                  (break))))))) x)
+
+          ; before we go any further, let's see if it's running.
+
+          (setv running false)
+          (try
+            (define [[container (go (.get docker.containers name))]
+                     [info (. container _container)]
+                     [running (-> info (get "State") (get "Running"))]])
+          (except [ValueError]))
+
+          (if (not running)
+            (define [[queue (.listen docker.events)]]
+              (print (% " => dep %s blocked" name))
+              (while true
+                (define [[e (go (.get queue))]
+                         [container (go (.show (get e "container")))]
+                         [cname (.lstrip (get container "Name") "/")]]
+                  (if (and (= cname name)
+                           (= (.get e "status") "start"))
+                    (do
+                      (go (.sleep asyncio 5))
+                      ; XXX: Run check after this to ensure it's up
+                      (print (% " => dep %s unblocked" name))
+                      (break))))))
+              (print (% " => dep %s is already up" name)))) x)
         [x [~@deps]])))))
 
 
