@@ -12,6 +12,13 @@
         [deployment "dev"]]
 
     ;;
+    ;; Lenin
+    ;;
+    ; (daemon :name "lenin"
+    ;         :image "paultag/lenin"
+    ;         :run "hy" "/opt/hylang/lenin/eg/metatron.pault.ag/services.hy")
+
+    ;;
     ;; SkyDNS
     ;;
     (daemon :name "skydns"
