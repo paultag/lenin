@@ -80,11 +80,13 @@
                   (if (and (= cname name)
                            (= (.get e "status") "start"))
                     (do
-                      (go (.sleep asyncio 5))
+                      (go (.sleep asyncio 2))
                       ; XXX: Run check after this to ensure it's up
                       (print (% " => dep %s unblocked" name))
                       (break))))))
-              (print (% " => dep %s is already up" name)))) x)
+              (do
+                (go (.sleep asyncio 2))
+                (print (% " => dep %s is already up" name))))) x)
         [x [~@deps]])))))
 
 
