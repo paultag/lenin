@@ -21,7 +21,7 @@
   ;;
   (daemon :name "openvpn"
           :privileged true
-          :port-mapping "0.0.0.0:1194:1194"
+          :port-mapping "0.0.0.0:1194:1194/udp"
           :image "openvpn"
           :run "/usr/bin/paultag-openvpnd")
 
