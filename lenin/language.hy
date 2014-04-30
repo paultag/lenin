@@ -43,7 +43,9 @@
   (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
            [links (list-comp (HyString (.join ":" x)) [x (:links data)])]
            [iname (gensym)]
+           [privileged (one 'false (:privileged data))]
            [config `{"Binds" [~@binds]
+                     "Privileged" ~privileged
                      "Links" [~@links]}]]
 
     (if (.get data :port-mapping)
