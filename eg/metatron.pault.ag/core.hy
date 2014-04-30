@@ -30,4 +30,11 @@
                  "-environment" deployment
                  "-s" "/docker.sock"
                  "-domain" host
-                 "-name" "skydns")))
+                 "-name" "skydns")
+
+    (daemon :name "lenin"
+            :image "paultag/lenin"
+            :requires "skydock"
+            :volumes ["/run/docker.sock" "/run/docker.sock"]
+                     ["/srv/leliel.pault.ag/dev/lenin" "/lenin"]
+            :run "hy" "/lenin/services.hy")))
