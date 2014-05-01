@@ -44,7 +44,6 @@
     (for [input inputs]
       (setv concrete (+ concrete (parse-string input))))
     (setv bindings `{"PortBindings" ~concrete})
-    (print bindings)
     bindings)
 
   (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
