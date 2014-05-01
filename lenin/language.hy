@@ -78,15 +78,14 @@
               (while true
                 (define [[e (go (.get queue))]]
                   (if (= (.get e "status") "start")
-                    (do
-                      (define [[container (go (.show (get e "container")))]
-                               [cname (.lstrip (get container "Name") "/")]]
+                    (define [[container (go (.show (get e "container")))]
+                             [cname (.lstrip (get container "Name") "/")]]
                       (if (= cname name)
                         (do
                           (go (.sleep asyncio 2))
                           ; XXX: Run check after this to ensure it's up
                           (print (% " => dep %s unblocked" name))
-                          (break)))))))))
+                          (break))))))))
               (do
                 (go (.sleep asyncio 2))
                 (print (% " => dep %s is already up" name))))) x)
