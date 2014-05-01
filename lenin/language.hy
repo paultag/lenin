@@ -106,9 +106,17 @@
         (setv ret (+ ret `[~v `{}])))
       ret))
 
+  (defn write-ports [ports]
+    (let [[ret `{}]]
+      (for [port ports]
+        (setv (, ip, _, v) (.split port ":"))
+        (setv ret (+ ret `[~(HyString v) `{}])))
+      ret))
+
   (define [[name (one `nil (:name data))]
            [volumes (write-binds (:volumes data))]
            [env (HyList (list-comp (HyString (.join "=" x)) [x (:env data)]))]
+           [ports (write-ports (:port-mapping data))]
            [image (one `"debian:stable" (:image data))]]
     `(do
       (go-setv container (.create-or-replace docker.containers
@@ -118,6 +126,7 @@
                                    "AttachStdin" false
                                    "AttachStdout" true
                                    "AttachStderr" true
+                                   "ExposedPorts" ~ports
                                    "Tty" false
                                    "Volumes" ~volumes
                                    "OpenStdin" false
