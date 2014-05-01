@@ -76,16 +76,17 @@
             (define [[queue (.listen docker.events)]]
               (print (% " => dep %s blocked" name))
               (while true
-                (define [[e (go (.get queue))]
-                         [container (go (.show (get e "container")))]
-                         [cname (.lstrip (get container "Name") "/")]]
-                  (if (and (= cname name)
-                           (= (.get e "status") "start"))
+                (define [[e (go (.get queue))]]
+                  (if (= (.get e "status") "start")
                     (do
-                      (go (.sleep asyncio 2))
-                      ; XXX: Run check after this to ensure it's up
-                      (print (% " => dep %s unblocked" name))
-                      (break))))))
+                      (define [[container (go (.show (get e "container")))]
+                               [cname (.lstrip (get container "Name") "/")]]
+                      (if (= cname name)
+                        (do
+                          (go (.sleep asyncio 2))
+                          ; XXX: Run check after this to ensure it's up
+                          (print (% " => dep %s unblocked" name))
+                          (break)))))))))
               (do
                 (go (.sleep asyncio 2))
                 (print (% " => dep %s is already up" name))))) x)
