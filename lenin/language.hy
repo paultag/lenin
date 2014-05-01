@@ -37,8 +37,15 @@
             [hport (HyString hport)]
             [ip (HyString ip)]
             [cport (HyString cport)]]
-        `{"PortBindings" {~hport [{"HostIp" ~ip "HostPort" ~cport}]
-        }}))
+        `{~hport [{"HostIp" ~ip "HostPort" ~cport}]}))
+
+  (defn parse-strings [inputs]
+    (setv concrete `{})
+    (for [input inputs]
+      (setv concrete (+ concrete (parse-string input))))
+    (setv bindings `{"PortBindings" ~concrete})
+    (print bindings)
+    bindings)
 
   (define [[binds (list-comp (HyString (.join ":" x)) [x (:volumes data)])]
            [links (list-comp (HyString (.join ":" x)) [x (:links data)])]
@@ -49,7 +56,7 @@
                      "Links" [~@links]}]]
 
     (if (.get data :port-mapping)
-      (setv config (+ config (parse-string (one 'nil (:port-mapping data))))))
+      (setv config (+ config (parse-strings (:port-mapping data)))))
 
     `(do
       (go-setv ~iname (.show container))
