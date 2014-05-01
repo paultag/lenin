@@ -82,12 +82,12 @@
                              [cname (.lstrip (get container "Name") "/")]]
                       (if (= cname name)
                         (do
-                          (go (.sleep asyncio 2))
+                          (go (.sleep asyncio 1))
                           ; XXX: Run check after this to ensure it's up
                           (print (% " => dep %s unblocked" name))
                           (break))))))))
               (do
-                (go (.sleep asyncio 2))
+                (go (.sleep asyncio 1))
                 (print (% " => dep %s is already up" name))))) x)
         [x [~@deps]])))))
 
