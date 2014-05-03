@@ -27,6 +27,18 @@
           :run "/usr/bin/paultag-openvpnd")
 
   ;;
+  ;; OpenVPN
+  ;;
+  (daemon :name "nginx"
+          :port-mapping "0.0.0.0:80:80/tcp"
+          :image "paultag/nginx"
+          :volumes ["/srv/leliel.pault.ag/dev/nginx/sites-enabled/"
+                    "/etc/nginx/sites-enabled/"]
+          :run "/usr/sbin/nginx"
+               "-c" "/etc/nginx/nginx.conf"
+               "-g" "daemon off;")
+
+  ;;
   ;;PostgreSQL
   ;;
   (daemon :name "postgres"
