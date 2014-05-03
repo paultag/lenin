@@ -23,4 +23,5 @@
           :image "paultag/snitchweb"
           :requires "mongodb"
           :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
+          :volumes ["/srv/leliel.pault.ag/dev/nginx/sockets/" "/sockets/"]
           :run "uwsgi" "--ini" "/etc/uwsgi/apps-enabled/uwsgi.ini"))
