@@ -32,7 +32,7 @@
   (daemon :name "nginx"
           :port-mapping "0.0.0.0:80:80/tcp"
           :image "paultag/nginx"
-          :volumes ["/srv/leliel.pault.ag/dev/nginx/sockets/" "/sockets/"]
+          :volumes ["/srv/leliel.pault.ag/dev/nginx/serve/" "/serve/"]
                    ["/srv/leliel.pault.ag/dev/nginx/sites-enabled/"
                     "/etc/nginx/sites-enabled/"]
           :run "/usr/sbin/nginx"
