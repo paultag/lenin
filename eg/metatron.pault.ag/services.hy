@@ -23,7 +23,7 @@
           :privileged true
           :port-mapping "0.0.0.0:1194:1194/udp"
                         "0.0.0.0:443:443/tcp"
-          :image "openvpn"
+          :image "private/openvpn"
           :run "/usr/bin/paultag-openvpnd")
 
   ;;
