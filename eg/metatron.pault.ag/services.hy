@@ -46,4 +46,26 @@
           :image "paultag/postgres"
           :volumes ["/srv/leliel.pault.ag/dev/postgres/9.3/main"
                     "/var/lib/postgresql/9.3/main"]
-          :run "/usr/local/bin/paultag-psqld"))
+          :run "/usr/local/bin/paultag-psqld")
+
+  ;;
+  ;; Snitch Daemon Debian
+  ;;
+  (daemon :name "snitchd-debian"
+          :image "paultag/snitch"
+          :requires "mongodb"
+          :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
+          :run "hy" "/opt/hylang/snitch/debian.hy")
+  ;;
+  ;; Snitch web worker
+  ;;
+  (daemon :name "snitchweb"
+          :image "paultag/snitch"
+          :requires "mongodb"
+          :env ["SNITCH_MONGO_DB_HOST" "mongodb.dev.leliel.pault.ag"]
+          :volumes ["/srv/leliel.pault.ag/dev/nginx/serve/" "/serve/"]
+          :run "uwsgi"
+                 "--ini" "/etc/uwsgi/apps-enabled/uwsgi.ini"
+                "--chown-socket" "snitch"
+                 "--uid" "snitch"
+                 "--check-static" "/opt/hylang/snitch/web/"))
