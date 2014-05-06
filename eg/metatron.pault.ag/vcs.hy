@@ -6,7 +6,7 @@
   ;;
   ;; Sync VCSs
   ;;
-  (job :every 5 minutes
+  (job :every 30 minutes
        :image "paultag/vcs"
        :volumes ["/srv/leliel.pault.ag/dev/vcs" "/vcs"]
        :run "/opt/paultag/vcs/docron"))
